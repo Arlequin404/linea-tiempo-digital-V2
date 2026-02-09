@@ -19,10 +19,14 @@ const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.8 }}
-          className="title"
+          className="title flex items-center justify-center gap-4"
         >
-          Evolución de la <br />
-          <span className="gradient-text">Digitalización</span>
+          <Sparkles className="sparkle-icon" size={40} />
+          <span>
+            Evolución de la <br />
+            <span className="gradient-text">Digitalización</span>
+          </span>
+          <Sparkles className="sparkle-icon" size={40} />
         </motion.h1>
 
         <motion.p

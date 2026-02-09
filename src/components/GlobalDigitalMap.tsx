@@ -140,113 +140,115 @@ const GlobalDigitalMap = () => {
                     }}
                     style={{ width: "100%", height: "100%" }}
                 >
-                    {/* Mapa estático sin zoom activo para evitar desplazamientos accidentales */}
-                    <Geographies geography={geoUrl}>
-                        {({ geographies }: { geographies: GeographyType[] }) =>
-                            geographies
-                                .filter((geo: GeographyType) => geo.properties.name !== "Antarctica")
-                                .map((geo: GeographyType) => {
-                                    const countryName = geo.properties.name?.toUpperCase();
-                                    const country = countryData.find(c => c.id === countryName || c.name.includes(countryName) || countryName.includes(c.id));
-                                    return (
-                                        <Geography
-                                            key={geo.rsmKey}
-                                            geography={geo}
-                                            fill={country ? country.color : "#1e293b"}
-                                            stroke="#0f172a"
-                                            strokeWidth={0.5}
-                                            style={{
-                                                default: { outline: "none" },
-                                                hover: { fill: country ? country.color : "#334155", outline: "none", cursor: "pointer" },
-                                                pressed: { outline: "none" }
-                                            }}
-                                            onMouseEnter={() => country && setActiveCountry(country.id)}
-                                            onMouseLeave={() => setActiveCountry(null)}
-                                        />
-                                    );
-                                })
-                        }
-                    </Geographies>
+                    <ZoomableGroup zoom={1} minZoom={1} maxZoom={isFullscreen ? 3 : 1.5}>
+                        {/* Mapa estático sin zoom activo para evitar desplazamientos accidentales */}
+                        <Geographies geography={geoUrl}>
+                            {({ geographies }: { geographies: GeographyType[] }) =>
+                                geographies
+                                    .filter((geo: GeographyType) => geo.properties.name !== "Antarctica")
+                                    .map((geo: GeographyType) => {
+                                        const countryName = geo.properties.name?.toUpperCase();
+                                        const country = countryData.find(c => c.id === countryName || c.name.includes(countryName) || countryName.includes(c.id));
+                                        return (
+                                            <Geography
+                                                key={geo.rsmKey}
+                                                geography={geo}
+                                                fill={country ? country.color : "#1e293b"}
+                                                stroke="#0f172a"
+                                                strokeWidth={0.5}
+                                                style={{
+                                                    default: { outline: "none" },
+                                                    hover: { fill: country ? country.color : "#334155", outline: "none", cursor: "pointer" },
+                                                    pressed: { outline: "none" }
+                                                }}
+                                                onMouseEnter={() => country && setActiveCountry(country.id)}
+                                                onMouseLeave={() => setActiveCountry(null)}
+                                            />
+                                        );
+                                    })
+                            }
+                        </Geographies>
 
-                    {countryData.map((c) => {
-                        const isTargetRegion = c.id === "ECUADOR" || c.id === "USA";
-                        // Ajustar posición del tooltip según si estamos en pantalla completa o no
-                        const tooltipX = c.coordinates[0] > 90 ? (isFullscreen ? -250 : -230) : 15;
-                        return (
-                            <Marker key={c.id} coordinates={c.coordinates as [number, number]}>
-                                <motion.g
-                                    onMouseEnter={() => setActiveCountry(c.id)}
-                                    onMouseLeave={() => setActiveCountry(null)}
-                                    className="marker-group"
-                                >
-                                    <circle
-                                        r={isTargetRegion ? 8 : 5}
-                                        fill={c.color}
-                                        stroke="#fff"
-                                        strokeWidth={1.5}
-                                    />
-                                    <motion.circle
-                                        r={isTargetRegion ? 16 : 10}
-                                        fill={c.color}
-                                        opacity={0.3}
-                                        animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.1, 0.3] }}
-                                        transition={{ duration: 2.5, repeat: Infinity }}
-                                    />
-
-                                    <foreignObject
-                                        x={tooltipX}
-                                        y={-120}
-                                        width={isFullscreen ? 260 : 220}
-                                        height={260}
-                                        style={{ pointerEvents: 'none', overflow: 'visible' }}
+                        {countryData.map((c) => {
+                            const isTargetRegion = c.id === "ECUADOR" || c.id === "USA";
+                            // Ajustar posición del tooltip según si estamos en pantalla completa o no
+                            const tooltipX = c.coordinates[0] > 90 ? (isFullscreen ? -250 : -230) : 15;
+                            return (
+                                <Marker key={c.id} coordinates={c.coordinates as [number, number]}>
+                                    <motion.g
+                                        onMouseEnter={() => setActiveCountry(c.id)}
+                                        onMouseLeave={() => setActiveCountry(null)}
+                                        className="marker-group"
                                     >
-                                        <AnimatePresence mode="wait">
-                                            {activeCountry === c.id && (
-                                                <motion.div
-                                                    initial={{ opacity: 0, scale: 0.9, x: c.coordinates[0] > 90 ? 20 : -20 }}
-                                                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                                                    exit={{ opacity: 0, scale: 0.9 }}
-                                                    className={`country-card-tooltip enhanced ${isFullscreen ? 'large' : ''} ${c.id === "ECUADOR" ? 'focus-ecuador' : ''}`}
-                                                    style={{ pointerEvents: 'none' }}
-                                                >
-                                                    <div className="card-top" style={{ backgroundColor: c.color }}>
-                                                        <span className="card-rank">#{c.rank}</span>
-                                                        <span className="card-name">{c.name}</span>
-                                                    </div>
+                                        <circle
+                                            r={isTargetRegion ? 8 : 5}
+                                            fill={c.color}
+                                            stroke="#fff"
+                                            strokeWidth={1.5}
+                                        />
+                                        <motion.circle
+                                            r={isTargetRegion ? 16 : 10}
+                                            fill={c.color}
+                                            opacity={0.3}
+                                            animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.1, 0.3] }}
+                                            transition={{ duration: 2.5, repeat: Infinity }}
+                                        />
 
-                                                    <div className="card-main-score">
-                                                        <Wifi size={14} className="score-icon" />
-                                                        <span className="score-label">Score Global:</span>
-                                                        <span className="score-value">{c.score}</span>
-                                                    </div>
+                                        <foreignObject
+                                            x={tooltipX}
+                                            y={-120}
+                                            width={isFullscreen ? 260 : 220}
+                                            height={260}
+                                            style={{ pointerEvents: 'none', overflow: 'visible' }}
+                                        >
+                                            <AnimatePresence mode="wait">
+                                                {activeCountry === c.id && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, scale: 0.9, x: c.coordinates[0] > 90 ? 20 : -20 }}
+                                                        animate={{ opacity: 1, scale: 1, x: 0 }}
+                                                        exit={{ opacity: 0, scale: 0.9 }}
+                                                        className={`country-card-tooltip enhanced ${isFullscreen ? 'large' : ''} ${c.id === "ECUADOR" ? 'focus-ecuador' : ''}`}
+                                                        style={{ pointerEvents: 'none' }}
+                                                    >
+                                                        <div className="card-top" style={{ backgroundColor: c.color }}>
+                                                            <span className="card-rank">#{c.rank}</span>
+                                                            <span className="card-name">{c.name}</span>
+                                                        </div>
 
-                                                    <div className="card-stats-grid">
-                                                        <div className="stat-item">
-                                                            <span className="stat-label">Web</span>
-                                                            <span className="stat-value">{c.webNav}</span>
+                                                        <div className="card-main-score">
+                                                            <Wifi size={14} className="score-icon" />
+                                                            <span className="score-label">Score Global:</span>
+                                                            <span className="score-value">{c.score}</span>
                                                         </div>
-                                                        <div className="stat-item">
-                                                            <span className="stat-label">Participación</span>
-                                                            <span className="stat-value">{c.ePart}%</span>
-                                                        </div>
-                                                    </div>
 
-                                                    <div className="card-services">
-                                                        <span className="services-title">Servicios:</span>
-                                                        <div className="services-tags">
-                                                            {c.services.map(s => (
-                                                                <span key={s} className="service-tag">{s}</span>
-                                                            ))}
+                                                        <div className="card-stats-grid">
+                                                            <div className="stat-item">
+                                                                <span className="stat-label">Web</span>
+                                                                <span className="stat-value">{c.webNav}</span>
+                                                            </div>
+                                                            <div className="stat-item">
+                                                                <span className="stat-label">Participación</span>
+                                                                <span className="stat-value">{c.ePart}%</span>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </foreignObject>
-                                </motion.g>
-                            </Marker>
-                        );
-                    })}
+
+                                                        <div className="card-services">
+                                                            <span className="services-title">Servicios:</span>
+                                                            <div className="services-tags">
+                                                                {c.services.map(s => (
+                                                                    <span key={s} className="service-tag">{s}</span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </foreignObject>
+                                    </motion.g>
+                                </Marker>
+                            );
+                        })}
+                    </ZoomableGroup>
                 </ComposableMap>
             </div>
 
