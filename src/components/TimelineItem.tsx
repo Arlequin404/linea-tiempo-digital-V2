@@ -62,12 +62,14 @@ const TimelineItem = ({
       <style>{`
         .timeline-item-row {
           display: flex;
-          justify-content: center;
           position: relative;
           width: 100%;
           min-height: 200px;
           margin-bottom: 3rem;
         }
+
+        .timeline-item-row.left { justify-content: flex-start; }
+        .timeline-item-row.right { justify-content: flex-end; }
 
         .timeline-connector {
           position: absolute;
@@ -186,6 +188,7 @@ const TimelineItem = ({
         .focus-tag.inst { border-color: rgba(16, 185, 129, 0.3); color: #34d399; }
 
         @media (max-width: 768px) {
+          .timeline-item-row.left, .timeline-item-row.right { justify-content: flex-start; }
           .timeline-connector { left: 20px; }
           .timeline-dot { left: 20px; }
           .timeline-card-wrapper { width: 100%; padding-left: 60px; padding-right: 20px; }
